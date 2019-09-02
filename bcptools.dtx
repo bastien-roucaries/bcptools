@@ -9,8 +9,8 @@
 bcptools:| Tools for BCP47
   Author:| Bastien Roucariès
   E-mail:| rouca@debian.org
- License:| Released under the LaTeX Project Public License v1.3c or later
-     See:| http://www.latex-project.org/lppl.txt
+ License:| Released under the expat license
+     See:| https://www.debian.org/legal/licenses/mit
 
 
 Short description:
@@ -32,20 +32,31 @@ Some text about the package: probably the same as the abstract.
 bcptools:| Tools for BCP47
   Author:| Bastien Roucariès
   E-mail:| rouca@debian.org
- License:| Released under the LaTeX Project Public License v1.3c or later
-     See:| http://www.latex-project.org/lppl.txt
+ License:| expat
+     See:| https://www.debian.org/legal/licenses/mit
 
 \endpreamble
 \postamble
 
 Copyright (C) 2019 by Bastien Roucariès <rouca@debian.org>
 
-This work may be distributed and/or modified under the
-conditions of the LaTeX Project Public License (LPPL), either
-version 1.3c of this license or (at your option) any later
-version.  The latest version of this license is in the file:
+Permission is hereby granted, free of charge, to any person obtaining
+a copy of this software and associated documentation files (the
+“Software”), to deal in the Software without restriction, including
+without limitation the rights to use, copy, modify, merge, publish,
+distribute, sublicense, and/or sell copies of the Software, and to
+permit persons to whom the Software is furnished to do so, subject to
+the following conditions:
 
-http://www.latex-project.org/lppl.txt
+The above copyright notice and this permission notice shall be
+included in all copies or substantial portions of the Software.  The
+Software is provided “as is”, without warranty of any kind, express or
+implied, including but not limited to the warranties of
+merchantability, fitness for a particular purpose and
+noninfringement. In no event shall the authors or copyright holders be
+liable for any claim, damages or other liability, whether in an action
+of contract, tort or otherwise, arising from, out of or in connection
+with the software or the use or other dealings in the Software.
 
 This work is "maintained" (as per LPPL maintenance status) by
 Bastien Roucariès.
@@ -92,9 +103,15 @@ Running "make install" installs the files in the local TeX tree.
 %</package>
 %<*driver>
 \documentclass{ltxdoc}
+\usepackage[]{fontspec}
 \usepackage[a4paper,margin=25mm,left=50mm,nohead]{geometry}
 \usepackage[numbered]{hypdoc}
+\usepackage{hyperref}
+\usepackage{xparse}
+\usepackage{xspace}
+\newcommand{\BCP}{\mbox{BCP-47}\xspace}
 \usepackage{\jobname}
+\usepackage{microtype}
 \EnableCrossrefs
 \CodelineIndex
 \RecordChanges
@@ -107,7 +124,7 @@ Running "make install" installs the files in the local TeX tree.
 % \GetFileInfo{\jobname.dtx}
 % \DoNotIndex{\newcommand,\newenvironment}
 %
-%\title{\textsf{bcptools} --- Tools for BCP47\thanks{This file
+%\title{\textsf{bcptools} --- Tools for \BCP\thanks{This file
 %   describes version \fileversion, last revised \filedate.}
 %}
 %\author{Bastien Roucariès\thanks{E-mail: rouca@debian.org}}
@@ -118,7 +135,13 @@ Running "make install" installs the files in the local TeX tree.
 %\changes{v1.00}{2019/09/02}{First public release}
 %
 % \begin{abstract}
-% ==== Put abstract text here. ====
+%   This file is a pure \LaTeX implementation of \BCP. An \mbox{IETF} \BCP language tag is a code to identify human languages.
+%   For example, the tag en stands for English; es-419 for Latin American Spanish; rm-sursilv for Sursilvan; gsw-u-sd-chzh for Zürich German;
+%   nan-Hant-TW for Min Nan Chinese as spoken in Taiwan using traditional Han characters.
+%   To distinguish language variants for countries, regions, writing systems etc.,
+%   IETF language tags combine subtags from other standards such as \mbox{ISO} 639, \mbox{ISO} 15924, \mbox{ISO} \mbox{3166-1}, and \mbox{UN} \mbox{M.49}.
+%   The tag structure has been standardized by the Internet Engineering Task Force (\mbox{IETF}) in Best Current Practice (\mbox{BCP}) 47;
+%   the subtags are maintained by the \mbox{IANA} Language Subtag Registry.
 % \end{abstract}
 %
 % \section{Usage}
@@ -163,14 +186,7 @@ Running "make install" installs the files in the local TeX tree.
 \newenvironment{dummyEnv}{%
 }{%
 %    \end{macrocode}
-% \changes{v1.00a}{2019/09/02}{Added a spurious change log entry to
-%   show what a change \emph{within} an environment definition looks
-%   like.}
-% Don't use |%| to introduce a code comment within a |macrocode|
-% environment.  Instead, you should typeset all of your comments with
-% LaTeX---doing so gives much prettier results.  For comments within a
-% macro/environment body, just do an |\end{macrocode}|, include some
-% commentary, and do another |\begin{macrocode}|.  It's that simple.
+% \changes{v1.00}{2019/09/02}{Initial release}
 %    \begin{macrocode}
 }
 %    \end{macrocode}

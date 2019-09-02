@@ -1,5 +1,7 @@
 NAME  = bcptools
 SHELL = bash
+LATEX = lualatex
+MAKEINDEX = xindy -C utf8 -I latex -M texindy
 PWD   = $(shell pwd)
 VERS  = $(shell ltxfileinfo -v $(NAME).dtx|sed -e 's/^v//')
 LOCAL = $(shell kpsewhich --var-value TEXMFLOCAL)
@@ -7,11 +9,11 @@ UTREE = $(shell kpsewhich --var-value TEXMFHOME)
 all:	$(NAME).pdf
 	test -e README.txt && mv README.txt README || exit 0
 $(NAME).pdf: $(NAME).dtx
-	pdflatex -shell-escape -recorder -interaction=batchmode $(NAME).dtx >/dev/null
+	$(LATEX) -shell-escape -recorder $(NAME).dtx
 	if [ -f $(NAME).glo ]; then makeindex -q -s gglo.ist -o $(NAME).gls $(NAME).glo; fi
 	if [ -f $(NAME).idx ]; then makeindex -q -s gind.ist -o $(NAME).ind $(NAME).idx; fi
-	pdflatex --recorder --interaction=nonstopmode $(NAME).dtx > /dev/null
-	pdflatex --recorder --interaction=nonstopmode $(NAME).dtx > /dev/null
+	$(LATEX) -shell-escape --recorder $(NAME).dtx
+	$(LATEX) -shell-escape --recorder $(NAME).dtx
 clean:
 	rm -f $(NAME).{aux,fls,glo,gls,hd,idx,ilg,ind,ins,log,out}
 distclean: clean
