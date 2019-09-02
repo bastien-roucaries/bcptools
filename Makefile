@@ -10,8 +10,10 @@ all:	$(NAME).pdf
 	test -e README.txt && mv README.txt README || exit 0
 $(NAME).pdf: $(NAME).dtx
 	$(LATEX) -shell-escape -recorder $(NAME).dtx
+	$(LATEX) -shell-escape --recorder $(NAME).dtx
 	if [ -f $(NAME).glo ]; then makeindex -q -s gglo.ist -o $(NAME).gls $(NAME).glo; fi
 	if [ -f $(NAME).idx ]; then makeindex -q -s gind.ist -o $(NAME).ind $(NAME).idx; fi
+	$(LATEX) -shell-escape --recorder $(NAME).dtx
 	$(LATEX) -shell-escape --recorder $(NAME).dtx
 	$(LATEX) -shell-escape --recorder $(NAME).dtx
 clean:

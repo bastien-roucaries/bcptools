@@ -24,7 +24,7 @@ Some text about the package: probably the same as the abstract.
 \fi
 %</internal>
 %<*install>
-\input docstrip.tex
+\input l3docstrip.tex
 \keepsilent
 \askforoverwritefalse
 \preamble
@@ -94,23 +94,20 @@ Running "make install" installs the files in the local TeX tree.
 %
 % \iffalse
 %<*driver>
-\ProvidesFile{bcptools.dtx}
+\ProvidesFile{bcptools.dtx}%
 %</driver>
-%<package>\NeedsTeXFormat{LaTeX2e}[1999/12/01]
-%<package>\ProvidesPackage{bcptools}
-%<*package>
-    [2019/09/02 v1.00 Tools for BCP47]
-%</package>
+%<package>\RequirePackage{expl3}
+%<package>\ProvidesExplPackage{bcptools}{2019/09/02}{1.00}{Tools for BCP47}
 %<*driver>
-\documentclass{ltxdoc}
+\documentclass[10pt]{l3doc}
 \usepackage[]{fontspec}
-\usepackage[a4paper,margin=25mm,left=50mm,nohead]{geometry}
-\usepackage[numbered]{hypdoc}
-\usepackage{hyperref}
+\usepackage[a4paper,margin=50mm,left=70mm,nohead]{geometry}
+\usepackage{hypdoc}
+\usepackage{lmodern}
 \usepackage{xparse}
 \usepackage{xspace}
 \newcommand{\BCP}{\mbox{BCP-47}\xspace}
-\usepackage{\jobname}
+\expandafter\usepackage{\jobname}
 \usepackage{microtype}
 \EnableCrossrefs
 \CodelineIndex
@@ -122,7 +119,7 @@ Running "make install" installs the files in the local TeX tree.
 % \fi
 %
 % \GetFileInfo{\jobname.dtx}
-% \DoNotIndex{\newcommand,\newenvironment}
+% \DoNotIndex{\newcommand,\newenvironment,\cs_new:Nn,\RequirePackage}
 %
 %\title{\textsf{bcptools} --- Tools for \BCP\thanks{This file
 %   describes version \fileversion, last revised \filedate.}
@@ -146,13 +143,9 @@ Running "make install" installs the files in the local TeX tree.
 %
 % \section{Usage}
 %
-% ==== Put descriptive text here. ====
-%
-% \DescribeMacro{\dummyMacro}
-% This macro does nothing.\index{doing nothing|usage} It is merely an
-% example.  If this were a real macro, you would put a paragraph here
-% describing what the macro is supposed to do, what its mandatory and
-% optional arguments are, and so forth.
+% \DescribeMacro{\bcptools_subtag_registery_releasedate:}
+% This macro return the release date (\mbox{ISO} format) of the
+% \BCP sub tag registry.
 %
 % \DescribeEnv{dummyEnv}
 % This environment does nothing.  It is merely an example.
@@ -164,21 +157,31 @@ Running "make install" installs the files in the local TeX tree.
 %  \PrintChanges
 %  \PrintIndex
 %}
-%
 % \section{Implementation}
 %
-%    \begin{macrocode}
 %<*package>
-
-%    \end{macrocode}
-% \begin{macro}{\dummyMacro}
-% This is a dummy macro.  If it did anything, we'd describe its
-% implementation here.
+%<@@=bcptools>
 %    \begin{macrocode}
-\newcommand{\dummyMacro}{}
+\RequirePackage{xparse}
+%    \end{macrocode}
+% \begin{macro}{\bcptools_subtag_registery_releasedate:}
+%   This macro contains the release date of the \BCP sub tag registery.
+%   First define to quark will be overwrite later.
+%    \begin{macrocode}
+\cs_new:Nn \bcptools_subtag_registery_releasedate:
+{
+  \bcptools_subtag_registery_releasedate:
+}
 %    \end{macrocode}
 % \end{macro}
-%
+% \begin{macro}{\@@_subtag_registery_name}
+%    \begin{macrocode}
+\str_const:Nn \@@_subtag_registery_name
+{
+  language-subtag-registry.txt
+}
+%    \end{macrocode}
+% \end{macro}
 % \begin{environment}{dummyEnv}
 % This is a dummy environment.  If it did anything, we'd describe its
 % implementation here.
@@ -194,6 +197,6 @@ Running "make install" installs the files in the local TeX tree.
 %
 %    \begin{macrocode}
 \endinput
-%</package>
 %    \end{macrocode}
+%</package>
 %\Finale
