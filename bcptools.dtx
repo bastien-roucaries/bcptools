@@ -97,11 +97,11 @@ Running "make install" installs the files in the local TeX tree.
 \ProvidesFile{bcptools.dtx}%
 %</driver>
 %<package>\RequirePackage{expl3}
-%<package>\ProvidesExplPackage{bcptools}{2019/09/02}{1.00}{Tools for BCP47}
+%<package>\ProvidesExplPackage{bcptools}{2019/09/02}{v1.00}{Tools for BCP47}
 %<*driver>
-\documentclass[10pt]{l3doc}
+\documentclass[10pt,full]{l3doc}
 \usepackage[]{fontspec}
-\usepackage[a4paper,margin=50mm,left=70mm,nohead]{geometry}
+\usepackage[a4paper,margin=20mm,left=50mm,nohead]{geometry}
 \usepackage{hypdoc}
 \usepackage{lmodern}
 \usepackage{xparse}
@@ -119,7 +119,8 @@ Running "make install" installs the files in the local TeX tree.
 % \fi
 %
 % \GetFileInfo{\jobname.dtx}
-% \DoNotIndex{\newcommand,\newenvironment,\cs_new:Nn,\RequirePackage}
+% \DoNotIndex{
+% }
 %
 %\title{\textsf{bcptools} --- Tools for \BCP\thanks{This file
 %   describes version \fileversion, last revised \filedate.}
@@ -128,6 +129,8 @@ Running "make install" installs the files in the local TeX tree.
 %\date{Released \filedate}
 %
 %\maketitle
+%
+%
 %
 %\changes{v1.00}{2019/09/02}{First public release}
 %
@@ -141,33 +144,94 @@ Running "make install" installs the files in the local TeX tree.
 %   the subtags are maintained by the \mbox{IANA} Language Subtag Registry.
 % \end{abstract}
 %
+% \tableofcontents
+%
 % \section{Usage}
 %
-% \DescribeMacro{\bcptools_subtag_registery_releasedate:}
-% This macro return the release date (\mbox{ISO} format) of the
-% \BCP sub tag registry.
+% \subsection{For other package functions}
 %
-% \DescribeEnv{dummyEnv}
-% This environment does nothing.  It is merely an example.
-% If this were a real environment, you would put a paragraph here
-% describing what the environment is supposed to do, what its
-% mandatory and optional arguments are, and so forth.
+% \begin{function}[added = 2019-09-01]{\bcptools_subtag_registery_releasedate:}
+%   \begin{syntax}
+%     \cs{bcptools_subtag_registery_releasedate:}
+%   \end{syntax}
+%   Put on the input stream the release date of the \BCP subtag registery
+% \end{function}
 %
 %\StopEventually{^^A
 %  \PrintChanges
 %  \PrintIndex
 %}
-% \section{Implementation}
+%  \section{Implementation}
 %
+% \subsection{Headers}
 %<*package>
+%    \begin{macrocode}
 %<@@=bcptools>
+%    \end{macrocode}
 %    \begin{macrocode}
 \RequirePackage{xparse}
 %    \end{macrocode}
+%
+% \subsection{Subtag registry parser}
+%
+% Here we define a parser for the subtag registry file of \mbox{IANA}.
+%
+% \subsubsection{Parse colon (:) separated field}
+%
+% \begin{macro}[EXP]{\@@_split_colon:n}
+% \begin{macro}[EXP]
+%   {\@@_split_colon_auxi:w, \@@_split_colon_auxii:w}
+%   This function takes a token list composed of two field separated by a colon (:)
+%   and splits it into name
+%   and value specification. In addition to
+%   this, a third argument, a boolean \meta{true} or \meta{false} is
+%   returned with \meta{true} for when there is a colon in the token list
+%   and \meta{false} if there is not.
+%
+%   We cannot use |:| directly as it has the wrong category code so
+%   an |x|-type expansion is used to force the conversion.
+%
+%   First ensure that we actually get a properly evaluated string by
+%   expanding \cs{tl_to_str:n} twice.  If the token list contained a
+%   colon, the auxiliary takes as |#1| the name, delimited by
+%   the first colon, then the value |#2|, delimited by \cs{q_mark},
+%   then \cs{c_true_bool} as |#3|, and |#4| cleans up until \cs{q_stop}.
+%   Otherwise, the |#1| contains the name and \cs{q_mark}
+%   \cs{c_true_bool}, |#2| is empty, |#3| is \cs{c_false_bool}, and |#4|
+%   cleans up.  The second
+%   auxiliary trims the trailing \cs{q_mark} from the token list name if
+%   present (that is, if the original line had no colon).
+%
+%   This code was adapted from \texttt{l3basic.dtx}
+%    \begin{macrocode}
+\cs_new_protected:Npn \@@_tmp:w #1 {}
+\cs_set_protected:Npn \@@_tmp:w #1
+  {
+    \cs_set:Npn \@@_split_colon:n ##1
+      {
+        \exp_after:wN \exp_after:wN \exp_after:wN
+        \@@_split_colon_auxi:w
+          \tl_to_str:n {##1} \q_mark \c_true_bool
+          #1 \q_mark \c_false_bool \q_stop
+      }
+    \cs_set:Npn \@@_split_colon_auxi:w
+        ##1 #1 ##2 \q_mark ##3##4 \q_stop
+      { \@@_split_colon_auxii:w ##1 \q_mark \q_stop {##2} ##3 }
+    \cs_set:Npn \@@_split_colon_auxii:w ##1 \q_mark ##2 \q_stop
+      { {##1} }
+  }
+  \exp_after:wN \@@_tmp:w \token_to_str:N :
+%    \end{macrocode}
+% \end{macro}
+% \end{macro}
+%
+% \subsection{Read and parse the subtag registry}
+%
 % \begin{macro}{\bcptools_subtag_registery_releasedate:}
 %   This macro contains the release date of the \BCP sub tag registery.
 %   First define to quark will be overwrite later.
 %    \begin{macrocode}
+% First define as a quark
 \cs_new:Nn \bcptools_subtag_registery_releasedate:
 {
   \bcptools_subtag_registery_releasedate:
@@ -175,6 +239,7 @@ Running "make install" installs the files in the local TeX tree.
 %    \end{macrocode}
 % \end{macro}
 % \begin{macro}{\@@_subtag_registery_name}
+% The name of the registry file:
 %    \begin{macrocode}
 \str_const:Nn \@@_subtag_registery_name
 {
@@ -182,19 +247,156 @@ Running "make install" installs the files in the local TeX tree.
 }
 %    \end{macrocode}
 % \end{macro}
-% \begin{environment}{dummyEnv}
-% This is a dummy environment.  If it did anything, we'd describe its
-% implementation here.
+% \begin{macro}{\@@_subtag_registery_ior}
+%   Stream name used for reading subtag registery
 %    \begin{macrocode}
-\newenvironment{dummyEnv}{%
-}{%
+\ior_new:N \@@_subtag_registery_ior
 %    \end{macrocode}
-% \changes{v1.00}{2019/09/02}{Initial release}
+% \end{macro}
+% \begin{macro}{\@@_parse_subtag_name_value:nN}
+% \begin{macro}{\@@_parse_subtag_name_value:NN}
+% \begin{macro}{\@@_parse_subtag_name_value_aux:nnnn}
+%   This macro parse a line composed of a name and value.
+%
+% First define error for parsing name/value
 %    \begin{macrocode}
+\msg_new:nnn {bcptools / subtags} {malformedfield}
+{
+  Parsing~ subtags~ registry~ get ~ "#1"~ at~ line~ "#2"~
+  instead~ of~ "name:value".
+}
+\msg_new:nnn {bcptools / subtags} {unexpectedfield}
+{
+  Parsing~ subtags~ registry~ expected~ field~ "#1"~ get~
+  "#2"~ at~ line~ "#3".
 }
 %    \end{macrocode}
-% \end{environment}
+%    \begin{macrocode}
+\cs_new:Nn \@@_parse_subtag_name_value:nN
+{
+  \exp_last_unbraced:Ne \@@_parse_subtag_name_value_aux:nnnnN
+     {\@@_split_colon:n{#1}} {#1} {#2}
+}
+\cs_new:Nn \@@_parse_subtag_name_value:NN
+{
+  \exp_args:Ne \@@_parse_subtag_name_value:nN {\tl_use:N #1} #2
+}
+\cs_new:Nn \@@_parse_subtag_name_value_aux:nnnnN
+{
+  \bool_if:nTF{#3}
+  {
+    {\tl_trim_spaces:n{#1}} {\tl_trim_spaces:n{#2}}
+  }
+  {
+    \msg_fatal:nnxx {bcptools / subtags} {malformedfield}
+       {#4} {\int_use:N #5}
+  }
+}
+%    \end{macrocode}
+% \end{macro}
+% \end{macro}
+% \end{macro}
+% \begin{macro}{\@@_ior_str_get:nNN}
+%   This macro is a wrapper arround \cs{ior_str_get:NN} that trim white space and
+%   increase a line integer
+%    \begin{macrocode}
+\cs_new:Nn \@@_ior_str_get:NNN
+{
+  \ior_str_get:NN #1 #2
+  \tl_trim_spaces:N #2
+  \int_gincr:N #3
+}
+%    \end{macrocode}
+% \end{macro}
+% \begin{macro}{\@@_parse_subtag_registery_header_aux:nnnN}
+%  Parse the first line of the \BCP subtag registery file. Set the registery version
+%    \begin{macrocode}
+\cs_new:Nn \@@_parse_subtag_registery_header_aux:nnnN {
+  \str_if_eq:eeF{\str_lower_case:n{#1}}{file-date}
+  {
+    \msg_fatal:nnxxx {bcptools / subtags} {unexpectedfield} {File-Date} {#1}
+       {\int_use:N #4}
+  }
+  \cs_gset:Nn \bcptools_subtag_registery_releasedate: {#2}
+}
+%    \end{macrocode}
+% \end{macro}
+% \begin{macro}{\@@_parse_subtag_registery_header:}
+%   Parse the header of the \BCP subtag registery file. Set the registery version
+%    \begin{macrocode}
+\cs_new:Nn \@@_parse_subtag_registery_header:NNN
+{
+%    \end{macrocode}
+% First line is File-Date: version
+%    \begin{macrocode}
+  \@@_ior_str_get:NNN #1 #2 #3
+  \tl_if_empty:NT #2
+  {
+    \msg_fatal:nnxxx {bcptools / subtags} {malformedfield} {\tl_use:N  #2}
+      {\int_use:N #3}
+  }
+  \exp_last_unbraced:Ne \@@_parse_subtag_registery_header_aux:nnnN
+     {\@@_parse_subtag_name_value:NN #2 #3} {#1} {#3}
+%    \end{macrocode}
+% second line is \%\%
+%    \begin{macrocode}
+  \@@_ior_str_get:NNN #1 #2 #3
+  \str_if_eq:eeF{#2}{\c_percent_str\c_percent_str}
+  {
+    \msg_fatal:nnxxx {bcptools / subtags} {unexpectedfield}
+       {\c_percent_str\c_percent_str} {\tl_use:N #2} {\int_use:N #3}
+  }
+}
+%    \end{macrocode}
+% \end{macro}
+% \begin{macro}{\@@_parse_subtag_registery:}
+%   Parse the sub tag registry execute at beginning of program.
 %
+%   Register parsing message:
+%    \begin{macrocode}
+\msg_new:nnn {bcptools / subtags} {beginparsing}
+{
+  Parsing~ subtags~ registry~ of~ BCP-47~ subtags~ (#1)
+}
+\msg_new:nnn {bcptools / subtags} {endparsing}
+{
+  Parsing~ subtags~ registry~ of~ BCP-47~ subtags~ (#1)~ version~ #2.
+  Registered~ #3~ subtags.
+}
+%    \end{macrocode}
+% Parse header then each entry
+%    \begin{macrocode}
+\int_new:N \@@_parse_subtag_registery_line_int
+\int_new:N \@@_parse_subtag_registery_record_int
+\tl_new:N  \@@_parse_subtag_registery_line_tl
+\usepackage{trace}
+\cs_new:Nn \@@_parse_subtag_registery:
+{
+  \msg_info:nnx {bcptools / subtags} {beginparsing}
+     {\@@_subtag_registery_name}
+  \ior_open:Nn \@@_subtag_registery_ior
+     \@@_subtag_registery_name
+  \@@_parse_subtag_registery_header:NNN
+     \@@_subtag_registery_ior
+     \@@_parse_subtag_registery_line_tl
+     \@@_parse_subtag_registery_line_int
+%    \end{macrocode}
+%    \begin{macrocode}
+%    \end{macrocode}
+% Cleanup and print information
+%    \begin{macrocode}
+  \ior_close:N \@@_subtag_registery_ior
+  \msg_info:nnxxx {bcptools / subtags} {endparsing}
+    {\@@_subtag_registery_name}
+    {\bcptools_subtag_registery_releasedate:}
+    {\int_use:N \@@_parse_subtag_registery_record_int}
+}
+%    \end{macrocode}
+% Run immedialty the parser
+%    \begin{macrocode}
+\@@_parse_subtag_registery:
+%    \end{macrocode}
+% \end{macro}
 %    \begin{macrocode}
 \endinput
 %    \end{macrocode}
